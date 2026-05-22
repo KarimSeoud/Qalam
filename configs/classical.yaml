@@ -1,0 +1,40 @@
+# Preset: Classical / Quranic Arabic
+# Use for: classical texts, hadith, tafsir, historical Arabic
+# Key difference: diacritics are KEPT (they are meaningful in classical Arabic)
+
+normalizer:
+  normalize_alef: false        # Classical texts have intentional hamza forms
+  normalize_hamza: false
+  remove_tatweel: true
+  diacritics: keep             # KEEP diacritics — critical for classical text
+  normalize_numerals: true
+  normalize_punctuation: false # Classical punctuation may be meaningful
+  remove_presentation_forms: true
+  remove_html: true
+  remove_urls: true
+
+dialect_filter: ["MSA"]        # Classical is closest to MSA in detection
+dialect_min_confidence: 0.3    # Be permissive — classifier trained on modern text
+
+quality:
+  min_arabic_ratio: 0.7       # Classical texts should be predominantly Arabic
+  min_length: 50
+  max_length: 500000          # Allow long classical texts (e.g. full chapters)
+  max_repetition_ratio: 0.35  # Classical texts can have intentional repetition
+  max_noise_ratio: 0.10
+  min_quality_score: 0.45
+  check_toxicity: false        # Classical texts may contain battle descriptions
+  check_boilerplate: true
+
+dedup:
+  exact_dedup: true
+  near_dedup: true
+  near_dedup_threshold: 0.95  # Very strict — classical texts are easily similar
+  num_perm: 128
+  shingle_size: 7             # Larger shingles for longer texts
+  normalize_before_hash: false # Don't strip diacritics before hashing classical text
+
+run_dedup: true
+output_format: pretraining
+generate_report: true
+verbose: true

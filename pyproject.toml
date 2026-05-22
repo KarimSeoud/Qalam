@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qalam"
+version = "0.1.0"
+description = "A pipeline for preparing high-quality Arabic datasets for LLM training and fine-tuning"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "qalam contributors"}
+]
+keywords = [
+    "arabic", "nlp", "llm", "dataset", "data-quality",
+    "preprocessing", "fine-tuning", "arabic-nlp"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Linguistic",
+    "Natural Language :: Arabic",
+    "Typing :: Typed",
+]
+requires-python = ">=3.10"
+
+# Core dependencies — intentionally minimal (no heavy models required)
+dependencies = []
+
+[project.optional-dependencies]
+# For HuggingFace Hub push
+hub = ["datasets>=2.14", "huggingface_hub>=0.20"]
+
+# For model-based perplexity scoring
+camel = ["camel-tools>=1.5"]
+
+# For the dialect map visualizer (web app)
+viz = ["flask>=3.0", "waitress>=3.0"]
+
+# Everything
+all = [
+    "qalam[hub]",
+    "qalam[viz]",
+]
+
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "black>=23",
+    "ruff>=0.1",
+    "mypy>=1.5",
+]
+
+[project.scripts]
+qalam = "qalam.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/KarimSeoud/Qalam"
+Repository = "https://github.com/KarimSeoud/Qalam"
+Issues = "https://github.com/KarimSeoud/Qalam/issues"
+Documentation = "https://github.com/KarimSeoud/Qalam#readme"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["qalam*"]
+
+# Ship the PEP 561 typing marker (so downstream `mypy --strict` sees our types)
+# and the bundled YAML config presets (referenced in the README).
+[tool.setuptools.package-data]
+qalam = ["py.typed", "data/*.json"]
+
+[tool.setuptools.data-files]
+"share/qalam/configs" = [
+    "configs/pretraining.yaml",
+    "configs/sft.yaml",
+    "configs/classical.yaml",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

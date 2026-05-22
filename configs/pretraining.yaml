@@ -1,0 +1,40 @@
+# Preset: LLM Pretraining (MSA focus)
+# Use for: building a pretraining corpus from web-scraped Arabic text
+# Priority: high recall, moderate precision
+
+normalizer:
+  normalize_alef: true
+  normalize_hamza: false
+  remove_tatweel: true
+  diacritics: strip          # Remove diacritics for pretraining
+  normalize_numerals: true
+  normalize_punctuation: true
+  remove_presentation_forms: true
+  remove_html: true
+  remove_urls: true
+
+dialect_filter: null          # Keep all dialects for pretraining diversity
+dialect_min_confidence: 0.4
+
+quality:
+  min_arabic_ratio: 0.5
+  min_length: 100             # Longer minimum for pretraining
+  max_length: 100000
+  max_repetition_ratio: 0.25
+  max_noise_ratio: 0.15
+  min_quality_score: 0.45     # Slightly permissive for pretraining scale
+  check_toxicity: true
+  check_boilerplate: true
+
+dedup:
+  exact_dedup: true
+  near_dedup: true
+  near_dedup_threshold: 0.85  # Slightly permissive — allow some paraphrase
+  num_perm: 128
+  shingle_size: 5
+  normalize_before_hash: true
+
+run_dedup: true
+output_format: pretraining
+generate_report: true
+verbose: true

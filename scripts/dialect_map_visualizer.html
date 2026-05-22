@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arabic Dialect Map Visualizer — qalam</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f8f7f4;color:#1a1a18;min-height:100vh}
+.header{padding:1.5rem 2rem 1rem;border-bottom:0.5px solid rgba(0,0,0,.08)}
+.header h1{font-size:18px;font-weight:500;margin-bottom:2px}
+.header p{font-size:12px;color:#73726c}
+.badge{display:inline-block;background:#EEEDFE;color:#3C3489;font-size:10px;font-weight:500;padding:2px 8px;border-radius:99px;margin-left:8px;vertical-align:middle}
+.layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 80px)}
+.sidebar{border-right:0.5px solid rgba(0,0,0,.08);background:#fff;overflow-y:auto;padding:1.25rem}
+.main{overflow:hidden;display:flex;flex-direction:column}
+.map-area{flex:1;position:relative;background:#f0ede8}
+#map-svg{width:100%;height:100%}
+.section-title{font-size:11px;font-weight:500;color:#73726c;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;margin-top:1.25rem}
+.section-title:first-child{margin-top:0}
+.upload-zone{border:1.5px dashed rgba(0,0,0,.2);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:1rem}
+.upload-zone:hover{border-color:#534AB7;background:#EEEDFE10}
+.upload-zone p{font-size:12px;color:#73726c;line-height:1.5}
+.upload-zone strong{color:#534AB7;font-size:13px}
+#file-input{display:none}
+.dialect-sliders{}
+.slider-row{margin-bottom:12px}
+.slider-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.slider-name{font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px}
+.dialect-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.slider-val{font-size:12px;color:#73726c;min-width:36px;text-align:right}
+input[type=range]{width:100%;height:4px;accent-color:var(--dc)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.stat-card{background:#f8f7f4;border-radius:8px;padding:10px 12px}
+.stat-label{font-size:10px;color:#73726c;margin-bottom:3px}
+.stat-val{font-size:18px;font-weight:500}
+.bias-alert{background:#FAEEDA;border:0.5px solid #EF9F27;border-radius:8px;padding:10px 12px;font-size:12px;color:#633806;margin-bottom:.75rem;display:none}
+.bias-alert strong{display:block;margin-bottom:3px;font-size:13px}
+.country-list{margin-top:.5rem}
+.country-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid rgba(0,0,0,.06);font-size:12px}
+.country-item:last-child{border-bottom:none}
+.country-bar{flex:1;height:4px;background:#f0ede8;border-radius:2px;margin:0 10px;overflow:hidden}
+.country-bar-fill{height:100%;border-radius:2px}
+.country-pct{color:#73726c;min-width:36px;text-align:right}
+.tooltip{position:absolute;pointer-events:none;background:#fff;border:0.5px solid rgba(0,0,0,.15);border-radius:8px;padding:9px 13px;font-size:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);opacity:0;transition:opacity .1s;max-width:200px;z-index:10}
+.tooltip strong{display:block;font-size:13px;margin-bottom:4px}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:12px;color:#73726c;margin-bottom:2px}
+.tooltip .tt-val{color:#1a1a18;font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#fff;border-top:0.5px solid rgba(0,0,0,.08)}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:3px 8px;border-radius:99px;border:0.5px solid transparent;transition:border-color .1s,background .1s;color:#444}
+.leg-item:hover,.leg-item.active{border-color:rgba(0,0,0,.2);background:rgba(0,0,0,.04)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.reset-btn{font-size:11px;background:none;border:0.5px solid rgba(0,0,0,.2);border-radius:6px;padding:5px 12px;cursor:pointer;color:#444;margin-top:.5rem;width:100%}
+.reset-btn:hover{background:rgba(0,0,0,.04)}
+@media(max-width:700px){
+  .layout{grid-template-columns:1fr;height:auto}
+  .sidebar{border-right:none;border-bottom:0.5px solid rgba(0,0,0,.08)}
+  .main{height:60vw;min-height:300px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Arabic Dialect Map Visualizer <span class="badge">qalam</span></h1>
+  <p>Upload a dataset or adjust sliders to see how your Arabic data is distributed across the Arab world</p>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="section-title">Dataset input</div>
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <input type="file" id="file-input" accept=".jsonl,.txt,.json">
+      <strong>Drop your JSONL file here</strong>
+      <p>or click to browse<br><br>Expects {"text": "..."} per line<br>or one text per line (.txt)</p>
+    </div>
+
+    <div class="section-title">Simulate dialect distribution</div>
+    <div class="dialect-sliders" id="sliders"></div>
+    <button class="reset-btn" onclick="resetSliders()">Reset to default</button>
+
+    <div class="section-title" style="margin-top:1.25rem">Dataset stats</div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="bias-alert" id="bias-alert">
+      <strong>Dialect bias detected</strong>
+      Your dataset is heavily skewed toward <span id="bias-dialect"></span>. Consider adding more diverse data.
+    </div>
+
+    <div class="section-title">Top countries</div>
+    <div class="country-list" id="country-list"></div>
+  </div>
+  <div class="main">
+    <div class="map-area">
+      <div class="tooltip" id="tooltip"></div>
+      <svg id="map-svg" viewBox="0 0 900 480"></svg>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+const DIALECTS = {
+  MSA:  { name:"Modern Standard Arabic", color:"#534AB7", countries:["EGY","SAU","ARE","MAR","DZA","TUN","LBY","SDN","SYR","LBN","JOR","IRQ","KWT","QAT","BHR","OMN","YEM","PSE","COM","DJI","MRT","SOM"] },
+  EGY:  { name:"Egyptian",               color:"#1D9E75", countries:["EGY"] },
+  LEV:  { name:"Levantine",              color:"#D85A30", countries:["SYR","LBN","JOR","PSE"] },
+  GULF: { name:"Gulf / Khaleeji",        color:"#BA7517", countries:["SAU","ARE","KWT","QAT","BHR","OMN"] },
+  MAG:  { name:"Moroccan / Maghrebi",    color:"#D4537E", countries:["MAR","DZA","TUN","LBY"] },
+  IRQ:  { name:"Iraqi",                  color:"#378ADD", countries:["IRQ"] },
+  SDN:  { name:"Sudanese",               color:"#639922", countries:["SDN"] },
+  YEM:  { name:"Yemeni",                 color:"#8A6F2E", countries:["YEM"] },
+};
+
+const ISO3_TO_NUMERIC = {
+  EGY:"818",SAU:"682",ARE:"784",MAR:"504",DZA:"012",TUN:"788",LBY:"434",
+  SDN:"729",SYR:"760",LBN:"422",JOR:"400",IRQ:"368",KWT:"414",QAT:"634",
+  BHR:"048",OMN:"512",YEM:"887",PSE:"275",COM:"174",DJI:"262",MRT:"478",SOM:"706"
+};
+
+const NUMERIC_TO_ISO3 = Object.fromEntries(Object.entries(ISO3_TO_NUMERIC).map(([k,v])=>[v,k]));
+
+const COUNTRY_NAMES = {
+  EGY:"Egypt",SAU:"Saudi Arabia",ARE:"UAE",MAR:"Morocco",DZA:"Algeria",
+  TUN:"Tunisia",LBY:"Libya",SDN:"Sudan",SYR:"Syria",LBN:"Lebanon",
+  JOR:"Jordan",IRQ:"Iraq",KWT:"Kuwait",QAT:"Qatar",BHR:"Bahrain",
+  OMN:"Oman",YEM:"Yemen",PSE:"Palestine",COM:"Comoros",DJI:"Djibouti",
+  MRT:"Mauritania",SOM:"Somalia"
+};
+
+// Default distribution (typical web corpus)
+let dialectDist = { MSA:45, EGY:25, LEV:10, GULF:8, MAG:5, IRQ:4, SDN:2, YEM:1 };
+
+function buildCountryCounts(dist) {
+  const counts = {};
+  for (const [code, pct] of Object.entries(dist)) {
+    const d = DIALECTS[code];
+    if (!d) continue;
+    const perCountry = pct / d.countries.length;
+    for (const c of d.countries) {
+      counts[c] = (counts[c]||0) + perCountry;
+    }
+  }
+  return counts;
+}
+
+function getCountryDialect(iso3) {
+  for (const [code, d] of Object.entries(DIALECTS)) {
+    if (d.countries.includes(iso3)) return code;
+  }
+  return null;
+}
+
+// Build sliders
+const slidersEl = document.getElementById('sliders');
+for (const [code, d] of Object.entries(DIALECTS)) {
+  slidersEl.innerHTML += `
+    <div class="slider-row">
+      <div class="slider-label">
+        <span class="slider-name">
+          <span class="dialect-dot" style="background:${d.color}"></span>
+          ${d.name} (${code})
+        </span>
+        <span class="slider-val" id="val-${code}">${dialectDist[code]||0}%</span>
+      </div>
+      <input type="range" id="sl-${code}" min="0" max="100" step="1" value="${dialectDist[code]||0}"
+        style="--dc:${d.color}" oninput="onSlider('${code}',this.value)">
+    </div>`;
+}
+
+// Legend
+const legendEl = document.getElementById('legend');
+for (const [code, d] of Object.entries(DIALECTS)) {
+  legendEl.innerHTML += `<div class="leg-item" id="leg-${code}" onclick="toggleDialect('${code}')">
+    <span class="leg-dot" style="background:${d.color}"></span>${code}
+  </div>`;
+}
+
+let hiddenDialects = new Set();
+function toggleDialect(code) {
+  if (hiddenDialects.has(code)) hiddenDialects.delete(code);
+  else hiddenDialects.add(code);
+  document.getElementById(`leg-${code}`).classList.toggle('active', !hiddenDialects.has(code));
+  updateMap();
+}
+
+function onSlider(code, val) {
+  dialectDist[code] = parseInt(val);
+  document.getElementById(`val-${code}`).textContent = val+'%';
+  updateAll();
+}
+
+function resetSliders() {
+  dialectDist = { MSA:45, EGY:25, LEV:10, GULF:8, MAG:5, IRQ:4, SDN:2, YEM:1 };
+  for (const [code] of Object.entries(DIALECTS)) {
+    document.getElementById(`sl-${code}`).value = dialectDist[code]||0;
+    document.getElementById(`val-${code}`).textContent = (dialectDist[code]||0)+'%';
+  }
+  hiddenDialects = new Set();
+  for (const [code] of Object.entries(DIALECTS)) {
+    document.getElementById(`leg-${code}`).classList.remove('active');
+  }
+  updateAll();
+}
+
+function updateAll() {
+  updateStats();
+  updateMap();
+  updateCountryList();
+  checkBias();
+}
+
+function updateStats() {
+  const total = Object.values(dialectDist).reduce((a,b)=>a+b,0);
+  const dominant = Object.entries(dialectDist).sort((a,b)=>b[1]-a[1])[0];
+  const diversity = calcDiversity();
+  const statsEl = document.getElementById('stats-grid');
+  statsEl.innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total %</div><div class="stat-val">${total}%</div></div>
+    <div class="stat-card"><div class="stat-label">Dialects</div><div class="stat-val">${Object.values(dialectDist).filter(v=>v>0).length}</div></div>
+    <div class="stat-card"><div class="stat-label">Dominant</div><div class="stat-val" style="font-size:15px">${dominant[0]}</div></div>
+    <div class="stat-card"><div class="stat-label">Diversity</div><div class="stat-val">${diversity}</div></div>
+  `;
+}
+
+function calcDiversity() {
+  const total = Object.values(dialectDist).reduce((a,b)=>a+b,0);
+  if (!total) return '0.00';
+  let entropy = 0;
+  for (const v of Object.values(dialectDist)) {
+    if (!v) continue;
+    const p = v/total;
+    entropy -= p * Math.log2(p);
+  }
+  const maxE = Math.log2(Object.values(dialectDist).filter(v=>v>0).length||1);
+  return maxE ? (entropy/maxE).toFixed(2) : '0.00';
+}
+
+function checkBias() {
+  const total = Object.values(dialectDist).reduce((a,b)=>a+b,0);
+  const alertEl = document.getElementById('bias-alert');
+  const dominant = Object.entries(dialectDist).sort((a,b)=>b[1]-a[1])[0];
+  if (dominant && dominant[1]/total > 0.65) {
+    alertEl.style.display = 'block';
+    document.getElementById('bias-dialect').textContent = `${DIALECTS[dominant[0]]?.name} (${dominant[1]}%)`;
+  } else {
+    alertEl.style.display = 'none';
+  }
+}
+
+function updateCountryList() {
+  const counts = buildCountryCounts(dialectDist);
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const max = sorted[0]?.[1]||1;
+  const el = document.getElementById('country-list');
+  el.innerHTML = sorted.map(([iso3, val]) => {
+    const dialect = getCountryDialect(iso3);
+    const color = dialect ? DIALECTS[dialect]?.color : '#888';
+    const pct = (val).toFixed(1);
+    return `<div class="country-item">
+      <span>${COUNTRY_NAMES[iso3]||iso3}</span>
+      <div class="country-bar"><div class="country-bar-fill" style="width:${val/max*100}%;background:${color}"></div></div>
+      <span class="country-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Map rendering ──────────────────────────────────────────────────────
+let worldData = null;
+const tooltip = document.getElementById('tooltip');
+const mapSvg = document.getElementById('map-svg');
+
+async function loadMap() {
+  try {
+    worldData = await d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+    updateMap();
+  } catch(e) {
+    mapSvg.innerHTML = '<text x="450" y="240" text-anchor="middle" font-size="14" fill="#888">Map unavailable offline</text>';
+  }
+}
+
+function updateMap() {
+  if (!worldData) return;
+  const counts = buildCountryCounts(dialectDist);
+  const maxCount = Math.max(1, ...Object.values(counts));
+
+  const svg = d3.select('#map-svg');
+  svg.selectAll('*').remove();
+
+  const W = 900, H = 480;
+  const projection = d3.geoNaturalEarth1().scale(148).translate([W/2, H/2+20]);
+  const path = d3.geoPath(projection);
+
+  // Globe outline
+  svg.append('path')
+    .datum({type:'Sphere'})
+    .attr('d', path)
+    .attr('fill','#e8e5df')
+    .attr('stroke','none');
+
+  const countries = topojson.feature(worldData, worldData.objects.countries);
+
+  svg.selectAll('.country')
+    .data(countries.features)
+    .join('path')
+    .attr('class','country')
+    .attr('d', path)
+    .attr('fill', d => {
+      const numId = String(d.id).padStart(3,'0');
+      const iso3 = NUMERIC_TO_ISO3[numId];
+      if (!iso3 || !counts[iso3]) return '#d8d5cf';
+      const dialect = getCountryDialect(iso3);
+      if (!dialect || hiddenDialects.has(dialect)) return '#d8d5cf';
+      return DIALECTS[dialect]?.color || '#888';
+    })
+    .attr('opacity', d => {
+      const numId = String(d.id).padStart(3,'0');
+      const iso3 = NUMERIC_TO_ISO3[numId];
+      if (!iso3 || !counts[iso3]) return 1;
+      const dialect = getCountryDialect(iso3);
+      if (hiddenDialects.has(dialect)) return 0.15;
+      const intensity = 0.3 + (counts[iso3]/maxCount)*0.7;
+      return intensity;
+    })
+    .attr('stroke','#fff')
+    .attr('stroke-width', d => {
+      const numId = String(d.id).padStart(3,'0');
+      const iso3 = NUMERIC_TO_ISO3[numId];
+      return counts[iso3] ? 0.8 : 0.3;
+    })
+    .attr('cursor', d => {
+      const numId = String(d.id).padStart(3,'0');
+      return NUMERIC_TO_ISO3[numId] && counts[NUMERIC_TO_ISO3[numId]] ? 'pointer' : 'default';
+    })
+    .on('mousemove', function(event, d) {
+      const numId = String(d.id).padStart(3,'0');
+      const iso3 = NUMERIC_TO_ISO3[numId];
+      if (!iso3 || !counts[iso3]) { tooltip.style.opacity=0; return; }
+      const dialect = getCountryDialect(iso3);
+      const dInfo = DIALECTS[dialect];
+      const pct = counts[iso3].toFixed(1);
+      tooltip.innerHTML = `
+        <strong>${COUNTRY_NAMES[iso3]||iso3}</strong>
+        <div class="tt-row"><span>Dialect</span><span class="tt-val" style="color:${dInfo?.color}">${dialect}</span></div>
+        <div class="tt-row"><span>Dataset share</span><span class="tt-val">${pct}%</span></div>
+        <div class="tt-row"><span>Dialect %</span><span class="tt-val">${dialectDist[dialect]||0}%</span></div>
+      `;
+      const rect = mapSvg.getBoundingClientRect();
+      const x = event.clientX - rect.left + 12;
+      const y = event.clientY - rect.top + 12;
+      tooltip.style.left = x+'px';
+      tooltip.style.top = y+'px';
+      tooltip.style.opacity = 1;
+    })
+    .on('mouseleave', () => { tooltip.style.opacity=0; });
+}
+
+// ── File upload ──────────────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const lines = text.trim().split('\n').filter(Boolean);
+
+  // Simple client-side dialect detection. Order matters: highly-distinctive
+  // dialects (SDN/YEM/IRQ/MAG) are tested before more permissive ones (EGY/LEV/GULF)
+  // so a hit on a uniquely-identifying marker wins over a generic one.
+  const detectedCounts = { MSA:0, EGY:0, LEV:0, GULF:0, MAG:0, IRQ:0, SDN:0, YEM:0 };
+  const markers = {
+    SDN:  /(زول|أزول|ياخوي|عصيدة|مريسة|كسرة)/,
+    YEM:  /(بشتي|أبشتي|اشتي|تشتي|يشتي|فيش)/,
+    IRQ:  /(اكو|ماكو|هواية|گال|گلت|يمعود|شكو|شنهو|هسه)/,
+    MAG:  /(واش|بزاف|راك|راني|دابا|باش|كاين|ديال|كيفاش|بصح)/,
+    EGY:  /(عايز|عاوز|بتاع|إيه|ايه|كده|دلوقتي|إزيك|النهارده|بقى|اوي)/,
+    LEV:  /(هيك|هلق|بدي|بدك|عم بحكي|عم يحكي|منيح|كتير|هيدا|هلأ)/,
+    GULF: /(وش|ايش تبي|ترا|يبغى|أبغى|ابغى|بغيت|شلون|عساك|الحين)/,
+  };
+
+  for (const line of lines) {
+    let txt = line;
+    try { txt = JSON.parse(line).text || line; } catch{}
+    let matched = false;
+    for (const [code, re] of Object.entries(markers)) {
+      if (re.test(txt)) { detectedCounts[code]++; matched=true; break; }
+    }
+    if (!matched) detectedCounts.MSA++;
+  }
+
+  const total = Object.values(detectedCounts).reduce((a,b)=>a+b,0)||1;
+  for (const [code] of Object.entries(DIALECTS)) {
+    dialectDist[code] = Math.round((detectedCounts[code]||0)/total*100);
+    document.getElementById(`sl-${code}`).value = dialectDist[code];
+    document.getElementById(`val-${code}`).textContent = dialectDist[code]+'%';
+  }
+  updateAll();
+});
+
+// Drag and drop
+document.querySelector('.upload-zone').addEventListener('dragover', e => { e.preventDefault(); });
+document.querySelector('.upload-zone').addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('file-input').files = dt.files;
+    document.getElementById('file-input').dispatchEvent(new Event('change'));
+  }
+});
+
+loadMap();
+updateAll();
+</script>
+</body>
+</html>

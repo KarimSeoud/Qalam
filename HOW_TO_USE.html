@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qalam — How to Use</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1208;
+  --paper: #f5f0e8;
+  --paper2: #ede7d9;
+  --accent: #b84c00;
+  --accent2: #2d6a4f;
+  --muted: #7a6f5e;
+  --border: rgba(26,18,8,.12);
+  --code-bg: #1a1208;
+  --code-fg: #f0e6c8;
+  --code-green: #7ec897;
+  --code-amber: #f0b429;
+  --code-blue: #79c0ff;
+  --code-comment: #6e6352;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.page-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
+}
+
+/* ── Header ── */
+.site-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: -.5px;
+}
+
+.logo-ar {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--muted);
+  direction: rtl;
+}
+
+.tagline {
+  margin-left: auto;
+  font-size: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--muted);
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+/* ── Chapter nav ── */
+.chapter-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.nav-pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  text-decoration: none;
+}
+
+.nav-pill:hover, .nav-pill.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: .4rem;
+}
+
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: var(--ink);
+}
+
+.section p {
+  color: #3d3425;
+  margin-bottom: 1rem;
+  max-width: 640px;
+}
+
+.section p:last-child { margin-bottom: 0; }
+
+/* ── Code blocks ── */
+.code-wrap {
+  margin: 1.25rem 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid rgba(26,18,8,.18);
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2a2010;
+  padding: 8px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--code-comment);
+}
+
+.code-dots { display: flex; gap: 5px; }
+.code-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #4a3f2e;
+}
+
+.copy-btn {
+  background: none;
+  border: 1px solid #4a3f2e;
+  color: var(--code-comment);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.copy-btn:hover { color: var(--code-fg); border-color: #6a5f4e; }
+.copy-btn.copied { color: var(--code-green); border-color: var(--code-green); }
+
+pre {
+  background: var(--code-bg);
+  color: var(--code-fg);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+.c  { color: var(--code-comment); font-style: italic; }
+.kw { color: var(--code-blue); }
+.fn { color: var(--code-amber); }
+.st { color: var(--code-green); }
+.cm { color: #b5a98a; }
+.nu { color: #f08080; }
+
+/* ── Inline code ── */
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── Callout boxes ── */
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--paper2);
+  padding: .85rem 1.1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  margin: 1.25rem 0;
+  font-size: 15px;
+  color: #3d3425;
+}
+
+.callout.tip { border-color: var(--accent2); }
+.callout strong { font-weight: 500; color: var(--ink); display: block; margin-bottom: .2rem; font-size: 14px; font-family: 'IBM Plex Mono', monospace; }
+
+/* ── Module cards ── */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 1.5rem 0;
+}
+
+.module-card {
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  text-decoration: none;
+  display: block;
+}
+
+.module-card:hover {
+  border-color: var(--accent);
+  background: #efe9da;
+}
+
+.module-card .mc-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: .3rem;
+}
+
+.module-card .mc-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Pipeline flow ── */
+.pipeline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 1.5rem 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+.pipe-step {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
+.pipe-step.optional {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.pipe-arrow {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* ── Table ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin: 1.25rem 0;
+}
+
+th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+  text-align: left;
+  padding: 6px 12px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: #3d3425;
+}
+
+tr:last-child td { border-bottom: none; }
+td code { font-size: 12px; }
+
+/* ── Divider ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+
+/* ── Scroll progress ── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  width: 0%;
+  transition: width .1s;
+  z-index: 100;
+}
+
+@media (max-width: 600px) {
+  .page-wrap { padding: 1.5rem 1rem 4rem; }
+  .site-header { flex-wrap: wrap; gap: .5rem; }
+  .tagline { margin-left: 0; }
+  .module-grid { grid-template-columns: 1fr; }
+  .pipeline { gap: 4px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="page-wrap">
+
+  <header class="site-header">
+    <span class="logo">qalam</span>
+    <span class="logo-ar">قلم</span>
+    <span class="tagline">v0.1.0 · how to use</span>
+  </header>
+
+  <nav class="chapter-nav">
+    <a href="#install"   class="nav-pill active">01 Install</a>
+    <a href="#pipeline"  class="nav-pill">02 Pipeline</a>
+    <a href="#normalize" class="nav-pill">03 Normalize</a>
+    <a href="#dialect"   class="nav-pill">04 Dialect</a>
+    <a href="#quality"   class="nav-pill">05 Quality</a>
+    <a href="#dedup"     class="nav-pill">06 Dedup</a>
+    <a href="#formats"   class="nav-pill">07 Formats</a>
+    <a href="#report"    class="nav-pill">08 Report</a>
+    <a href="#cli"       class="nav-pill">09 CLI</a>
+  </nav>
+
+
+  <!-- 01 Install -->
+  <section class="section" id="install">
+    <div class="section-num">01</div>
+    <h2>Install</h2>
+    <p>Qalam has no required dependencies. The core pipeline runs on pure Python 3.10+.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>terminal</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="c"># minimal install</span>
+pip install qalam
+
+<span class="c"># with HuggingFace Hub push support</span>
+pip install qalam[hub]
+
+<span class="c"># everything</span>
+pip install qalam[all]</pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>tip</strong>
+      No model downloads required. Dialect detection and quality scoring are lexicon-based and run instantly — even on a laptop.
+    </div>
+
+    <p>Modules available after install:</p>
+    <div class="module-grid">
+      <a href="#normalize" class="module-card"><div class="mc-name">normalize</div><div class="mc-desc">Unicode, alef/hamza, Persian chars, diacritics, tatweel, bidi, numerals</div></a>
+      <a href="#dialect"   class="module-card"><div class="mc-name">dialect</div><div class="mc-desc">Detect & route 8 varieties — optional MADAR profile (78.6% acc, no GPU)</div></a>
+      <a href="#quality"   class="module-card"><div class="mc-name">quality</div><div class="mc-desc">Score and filter by Arabic ratio, noise, repetition, boilerplate, toxicity</div></a>
+      <a href="#dedup"     class="module-card"><div class="mc-name">dedup</div><div class="mc-desc">Exact + MinHash LSH near-dedup, cross-dataset contamination</div></a>
+      <a href="#formats"   class="module-card"><div class="mc-name">formats</div><div class="mc-desc">SFT, DPO, pretraining — 12 chat templates for every major Arabic LLM</div></a>
+      <a href="#report"    class="module-card"><div class="mc-name">report</div><div class="mc-desc">HTML report card with interactive dialect map</div></a>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 02 Pipeline -->
+  <section class="section" id="pipeline">
+    <div class="section-num">02</div>
+    <h2>Full pipeline</h2>
+    <p>The easiest way to use Qalam is the <code>Pipeline</code> orchestrator — it chains all modules in the right order.</p>
+
+    <div class="pipeline">
+      <span class="pipe-step">normalize</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step optional">dialect filter</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step">quality filter</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step">dedup</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step optional">format</span>
+      <span class="pipe-arrow">→</span>
+      <span class="pipe-step optional">report</span>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python — one liner</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> Pipeline
+
+result = Pipeline().<span class="fn">run</span>(my_texts)
+<span class="fn">print</span>(<span class="st">f"Kept {len(result.texts)} / {len(my_texts)} examples"</span>)</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python — full config</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> Pipeline
+<span class="kw">from</span> qalam.pipeline <span class="kw">import</span> PipelineConfig
+<span class="kw">from</span> qalam.normalize <span class="kw">import</span> NormalizerConfig
+<span class="kw">from</span> qalam.quality   <span class="kw">import</span> QualityConfig
+
+pipeline = <span class="fn">Pipeline</span>(<span class="fn">PipelineConfig</span>(
+    normalizer     = <span class="fn">NormalizerConfig</span>(diacritics=<span class="st">"strip"</span>),
+    quality        = <span class="fn">QualityConfig</span>(min_quality_score=<span class="nu">0.6</span>),
+    dialect_filter = [<span class="st">"MSA"</span>, <span class="st">"EGY"</span>],  <span class="c"># keep only MSA + Egyptian</span>
+    run_dedup      = <span class="kw">True</span>,
+    generate_report= <span class="kw">True</span>,
+    report_path    = <span class="st">"report.html"</span>,
+))
+
+result = pipeline.<span class="fn">run</span>(texts)
+<span class="fn">print</span>(result.stats)</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python — load from file</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="c"># reads .jsonl ({"text": "..."} per line) or plain .txt</span>
+result = pipeline.<span class="fn">run_from_file</span>(<span class="st">"data.jsonl"</span>, column=<span class="st">"text"</span>)</pre>
+    </div>
+
+    <div class="callout">
+      <strong>config presets</strong>
+      Three ready-made YAML presets live in <code>configs/</code>: <code>pretraining.yaml</code>, <code>sft.yaml</code>, and <code>classical.yaml</code> (keeps diacritics for Quranic / classical text).
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 03 Normalize -->
+  <section class="section" id="normalize">
+    <div class="section-num">03</div>
+    <h2>Normalize</h2>
+    <p>Handles the script-level noise that breaks tokenizers: multiple alef forms, tatweel elongation, diacritics, Eastern numerals, HTML, and Unicode presentation forms.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> QalamNormalizer
+<span class="kw">from</span> qalam.normalize <span class="kw">import</span> NormalizerConfig
+
+<span class="c"># default: strip diacritics, unify alef, remove tatweel</span>
+n = <span class="fn">QalamNormalizer</span>()
+n.<span class="fn">normalize</span>(<span class="st">"مَرْحَبًا بِكُم"</span>)
+<span class="c"># → "مرحبا بكم"</span>
+
+<span class="c"># keep diacritics (classical / Quranic data)</span>
+n = <span class="fn">QalamNormalizer</span>(<span class="fn">NormalizerConfig</span>(diacritics=<span class="st">"keep"</span>))
+
+<span class="c"># see exactly what changed</span>
+diff = n.<span class="fn">diff</span>(original, n.<span class="fn">normalize</span>(original))
+<span class="c"># {"changed": True, "changes": ["diacritics stripped", "2 alef variant(s) unified"]}</span>
+
+<span class="c"># batch</span>
+clean_texts = n.<span class="fn">normalize_batch</span>(texts)</pre>
+    </div>
+
+    <table>
+      <tr><th>Option</th><th>Values</th><th>Default</th></tr>
+      <tr><td><code>diacritics</code></td><td><code>"strip"</code> / <code>"keep"</code> / <code>"keep_classical"</code></td><td><code>"strip"</code></td></tr>
+      <tr><td><code>normalize_alef</code></td><td>bool — unify أ إ آ ٱ → ا</td><td><code>True</code></td></tr>
+      <tr><td><code>normalize_alef_maksura</code></td><td>bool — ى → ي</td><td><code>True</code></td></tr>
+      <tr><td><code>normalize_teh_marbuta</code></td><td>bool — ة → ه (lossy, off by default)</td><td><code>False</code></td></tr>
+      <tr><td><code>normalize_persian</code></td><td>bool — ی ک ہ → Arabic equivalents</td><td><code>True</code></td></tr>
+      <tr><td><code>remove_tatweel</code></td><td>bool — remove ـ</td><td><code>True</code></td></tr>
+      <tr><td><code>remove_bidi_controls</code></td><td>bool — strip ZWNJ, ZWJ, RLM, LRM</td><td><code>True</code></td></tr>
+      <tr><td><code>normalize_numerals</code></td><td>bool — ٠١٢ ۰۱۲ → 012</td><td><code>True</code></td></tr>
+      <tr><td><code>remove_html</code></td><td>bool</td><td><code>True</code></td></tr>
+      <tr><td><code>remove_urls</code></td><td>bool</td><td><code>False</code></td></tr>
+      <tr><td><code>collapse_repeated_chars</code></td><td><code>None</code> or int — collapse runs longer than N</td><td><code>None</code></td></tr>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 04 Dialect -->
+  <section class="section" id="dialect">
+    <div class="section-num">04</div>
+    <h2>Dialect detection</h2>
+    <p>Identifies which variety of Arabic a text is written in — and lets you keep, exclude, tag, or separate by dialect. This is the most uniquely Arabic problem Qalam solves.</p>
+    <div class="callout tip">
+      <strong>MADAR-6 benchmark</strong>
+      <code>DialectDetector(profile="madar")</code> scores <strong>78.6% accuracy</strong> on the standard 6,000-sample MADAR-6 benchmark — within 1.4 points of MARBERT (500 MB PyTorch model) at 1/1250th the install size. The default mode hits <strong>91% precision</strong> when it commits to a label (abstains on uncertain texts).
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> DialectDetector
+
+<span class="c"># default: fast IDF-weighted lexicon — no model, instant</span>
+d = <span class="fn">DialectDetector</span>()
+
+<span class="c"># high-accuracy mode: MADAR profile (78.6% on MADAR-6, 400 KB, no GPU)</span>
+d = <span class="fn">DialectDetector</span>(profile=<span class="st">"madar"</span>)
+
+<span class="c"># detect a single text</span>
+result = d.<span class="fn">detect</span>(<span class="st">"عايز أروح السينما النهارده"</span>)
+result.dialect       <span class="c"># "EGY"</span>
+result.confidence    <span class="c"># 0.85</span>
+result.country_hints <span class="c"># ["EGY"]</span>
+
+<span class="c"># filter a corpus — keep only MSA</span>
+msa = d.<span class="fn">route</span>(texts, keep=[<span class="st">"MSA"</span>])
+
+<span class="c"># exclude Maghrebi</span>
+filtered = d.<span class="fn">route</span>(texts, exclude=[<span class="st">"MAG"</span>])
+
+<span class="c"># tag every example with metadata</span>
+tagged = d.<span class="fn">tag_batch</span>(texts)
+<span class="c"># [{"text": "...", "dialect": "LEV", "confidence": 0.79}, ...]</span>
+
+<span class="c"># corpus distribution (used by the map visualizer)</span>
+dist = d.<span class="fn">distribution</span>(texts)
+<span class="c"># {"total": 1000, "dialects": {"EGY": {"count": 350, "percentage": 35.0}}}</span></pre>
+    </div>
+
+    <table>
+      <tr><th>Code</th><th>Dialect</th><th>Countries</th></tr>
+      <tr><td><code>MSA</code></td><td>Modern Standard Arabic</td><td>All Arabic-speaking countries</td></tr>
+      <tr><td><code>EGY</code></td><td>Egyptian</td><td>Egypt</td></tr>
+      <tr><td><code>LEV</code></td><td>Levantine</td><td>Syria, Lebanon, Jordan, Palestine</td></tr>
+      <tr><td><code>GULF</code></td><td>Gulf / Khaleeji</td><td>Saudi Arabia, UAE, Kuwait, Qatar, Bahrain, Oman</td></tr>
+      <tr><td><code>MAG</code></td><td>Moroccan / Maghrebi</td><td>Morocco, Algeria, Tunisia, Libya</td></tr>
+      <tr><td><code>IRQ</code></td><td>Iraqi</td><td>Iraq</td></tr>
+      <tr><td><code>SDN</code></td><td>Sudanese</td><td>Sudan</td></tr>
+      <tr><td><code>YEM</code></td><td>Yemeni</td><td>Yemen</td></tr>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 05 Quality -->
+  <section class="section" id="quality">
+    <div class="section-num">05</div>
+    <h2>Quality scoring</h2>
+    <p>Scores each text on five dimensions and returns a composite 0–1 score. Texts below the threshold are flagged with the reason.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> QualityScorer
+<span class="kw">from</span> qalam.quality <span class="kw">import</span> QualityConfig
+
+scorer = <span class="fn">QualityScorer</span>(<span class="fn">QualityConfig</span>(
+    min_arabic_ratio   = <span class="nu">0.5</span>,
+    min_length         = <span class="nu">50</span>,
+    min_quality_score  = <span class="nu">0.55</span>,
+    check_toxicity     = <span class="kw">True</span>,
+    check_boilerplate  = <span class="kw">True</span>,
+))
+
+<span class="c"># score one text</span>
+r = scorer.<span class="fn">score</span>(text)
+r.score          <span class="c"># 0.82</span>
+r.passed         <span class="c"># True</span>
+r.flags          <span class="c"># [] or ["too_short", "high_noise", ...]</span>
+r.arabic_ratio   <span class="c"># 0.89</span>
+
+<span class="c"># filter a list</span>
+clean = scorer.<span class="fn">filter_batch</span>(texts)
+
+<span class="c"># corpus summary</span>
+summary = scorer.<span class="fn">summary</span>(texts)
+<span class="c"># {"total": 1000, "passed": 847, "pass_rate": 84.7, "flag_breakdown": {...}}</span></pre>
+    </div>
+
+    <table>
+      <tr><th>Dimension</th><th>What it checks</th><th>Weight</th></tr>
+      <tr><td>Arabic ratio</td><td>Fraction of Arabic script characters</td><td>25%</td></tr>
+      <tr><td>Length</td><td>Too short or too long penalized</td><td>15%</td></tr>
+      <tr><td>Repetition</td><td>Duplicate trigram ratio</td><td>25%</td></tr>
+      <tr><td>Noise</td><td>Non-text character density</td><td>20%</td></tr>
+      <tr><td>Language mix</td><td>Arabic vs Latin character ratio</td><td>15%</td></tr>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 06 Dedup -->
+  <section class="section" id="dedup">
+    <div class="section-num">06</div>
+    <h2>Deduplication</h2>
+    <p>Two-phase dedup: exact fingerprinting catches perfect copies; MinHash LSH catches near-duplicates that are paraphrases or slightly edited versions. Cross-dataset contamination detection is also built in.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> Deduplicator
+<span class="kw">from</span> qalam.dedup <span class="kw">import</span> DedupConfig
+
+deduper = <span class="fn">Deduplicator</span>(<span class="fn">DedupConfig</span>(
+    near_dedup_threshold = <span class="nu">0.8</span>,  <span class="c"># Jaccard similarity cutoff</span>
+    num_perm             = <span class="nu">128</span>,  <span class="c"># MinHash permutations</span>
+))
+
+result = deduper.<span class="fn">dedup</span>(texts)
+result.removed_count   <span class="c"># total removed</span>
+result.exact_removed   <span class="c"># exact duplicates</span>
+result.near_removed    <span class="c"># near-duplicates</span>
+result.duplicate_rate  <span class="c"># e.g. 12.4 (percent)</span>
+result.unique_texts    <span class="c"># clean list</span>
+
+<span class="c"># cross-dataset: remove train examples that appear in test set</span>
+clean_train = deduper.<span class="fn">dedup_against</span>(train_texts, test_texts)
+
+<span class="c"># contamination report</span>
+report = deduper.<span class="fn">contamination_report</span>(train_texts, test_texts)
+<span class="c"># {"contamination_rate": 2.3, "contaminated_train_examples": 230}</span></pre>
+    </div>
+
+    <div class="callout">
+      <strong>threshold guide</strong>
+      <code>0.9+</code> — very strict, only catches near-identical texts (good for fine-tuning). <code>0.8</code> — catches paraphrases (good for pretraining). <code>0.7</code> — aggressive, may remove legitimate variations.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 07 Formats -->
+  <section class="section" id="formats">
+    <div class="section-num">07</div>
+    <h2>Format conversion</h2>
+    <p>Convert cleaned data into whatever format your training framework expects — with the right chat template applied.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python — SFT + chat templates</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam <span class="kw">import</span> FormatConverter
+<span class="kw">from</span> qalam.formats <span class="kw">import</span> SFTExample, DPOExample
+
+conv = <span class="fn">FormatConverter</span>(default_template=<span class="st">"chatml"</span>)
+
+<span class="c"># create an SFT example</span>
+ex = <span class="fn">SFTExample</span>(
+    instruction = <span class="st">"ما هي عاصمة مصر؟"</span>,
+    input       = <span class="st">""</span>,
+    output      = <span class="st">"عاصمة مصر هي القاهرة."</span>,
+)
+
+<span class="c"># pick any of the 12 supported templates</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"llama3"</span>)    <span class="c"># Llama 3 / 3.1 / 3.2</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"llama2"</span>)    <span class="c"># Llama 2 Chat</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"mistral"</span>)   <span class="c"># Mistral / Mixtral / ALLaM</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"chatml"</span>)    <span class="c"># Qwen, Yi, AceGPT, Jais-v2</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"jais"</span>)      <span class="c"># Jais (Arabic-first)</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"gemma4"</span>)    <span class="c"># Gemma 4</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"gemma2"</span>)    <span class="c"># Gemma 2 / 3</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"command-r"</span>) <span class="c"># Command-R / Aya / Aya-Expanse</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"phi3"</span>)      <span class="c"># Phi-3 / Phi-3.5</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"deepseek"</span>)  <span class="c"># DeepSeek V2 / V3 / R1</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"alpaca"</span>)    <span class="c"># Stanford Alpaca / academic</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"vicuna"</span>)    <span class="c"># Vicuna 1.1 / FastChat</span>
+
+<span class="c"># Gemma 4 with chain-of-thought thinking mode</span>
+<span class="kw">from</span> qalam.formats <span class="kw">import</span> CHAT_TEMPLATES
+CHAT_TEMPLATES[<span class="st">"gemma4"</span>][<span class="st">"enable_thinking"</span>] = <span class="kw">True</span>
+conv.<span class="fn">sft_to_formatted</span>(ex, template=<span class="st">"gemma4"</span>)
+
+<span class="c"># generate inference prompt (no assistant response appended)</span>
+conv.<span class="fn">apply_chat_template</span>(messages, template=<span class="st">"llama3"</span>, add_generation_prompt=<span class="kw">True</span>)
+
+<span class="c"># save as JSONL</span>
+conv.<span class="fn">save_jsonl</span>(examples, <span class="st">"train.jsonl"</span>)
+
+<span class="c"># DPO format</span>
+dpo = <span class="fn">DPOExample</span>(
+    prompt   = <span class="st">"كيف أتعلم البرمجة؟"</span>,
+    chosen   = <span class="st">"ابدأ بتعلم Python عبر مشاريع عملية..."</span>,
+    rejected = <span class="st">"اقرأ كتب."</span>,
+)
+conv.<span class="fn">dpo_to_dict</span>(dpo)  <span class="c"># ready for TRL DPOTrainer</span>
+
+<span class="c"># pretraining: concatenate with EOS tokens</span>
+conv.<span class="fn">to_pretraining</span>(texts, eos_token=<span class="st">"&lt;/s&gt;"</span>)
+
+<span class="c"># push to HuggingFace Hub</span>
+conv.<span class="fn">push_to_hub</span>(examples, <span class="st">"your-org/arabic-sft"</span>)</pre>
+    </div>
+
+    <table>
+      <tr><th>Template</th><th>Models</th><th>Notes</th></tr>
+      <tr><td><code>chatml</code></td><td>Qwen 2.5/3, Yi, AceGPT, InternLM, OpenHermes, Zephyr</td><td>Most common open-weights format</td></tr>
+      <tr><td><code>llama3</code></td><td>Llama 3, 3.1, 3.2</td><td></td></tr>
+      <tr><td><code>llama2</code></td><td>Llama 2 Chat, older AceGPT/Jais builds</td><td>System embedded in first [INST]</td></tr>
+      <tr><td><code>mistral</code></td><td>Mistral, Mixtral, ALLaM (SDAIA), Mistral-Arabic</td><td></td></tr>
+      <tr><td><code>jais</code></td><td>Jais (MBZUAI Arabic-first LLM)</td><td></td></tr>
+      <tr><td><code>gemma4</code></td><td>Gemma 4 E2B / E4B / 26B / 31B</td><td>Set <code>enable_thinking=True</code> for chain-of-thought</td></tr>
+      <tr><td><code>gemma2</code></td><td>Gemma 2 / Gemma 3</td><td>System merged into first user turn</td></tr>
+      <tr><td><code>command-r</code></td><td>Command-R, Command-R+, Aya-23, Aya-Expanse (Cohere)</td><td>Best multilingual Arabic coverage</td></tr>
+      <tr><td><code>phi3</code></td><td>Phi-3, Phi-3.5 Mini / Small / Medium / MoE (Microsoft)</td><td></td></tr>
+      <tr><td><code>deepseek</code></td><td>DeepSeek-V2, DeepSeek-V3, DeepSeek-R1</td><td>Uses fullwidth pipe tokens ｜</td></tr>
+      <tr><td><code>alpaca</code></td><td>Stanford Alpaca — academic Arabic SFT default</td><td>### Instruction / ### Response</td></tr>
+      <tr><td><code>vicuna</code></td><td>Vicuna 1.1, FastChat</td><td>USER: / ASSISTANT: format</td></tr>
+    </table>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 08 Report -->
+  <section class="section" id="report">
+    <div class="section-num">08</div>
+    <h2>Report card</h2>
+    <p>Generates a full dataset report — token counts, quality distribution, dialect breakdown, duplicate rates — exportable as HTML (with the interactive dialect map), JSON, or Markdown for dataset cards.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>python</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="kw">from</span> qalam.report <span class="kw">import</span> ReportGenerator
+
+gen = <span class="fn">ReportGenerator</span>()
+report = gen.<span class="fn">generate</span>(texts)
+
+<span class="c"># print summary to terminal</span>
+gen.<span class="fn">print_summary</span>(report)
+
+<span class="c"># save interactive HTML report (includes dialect map)</span>
+gen.<span class="fn">save_html</span>(report, <span class="st">"report.html"</span>, dataset_name=<span class="st">"My Dataset"</span>)
+
+<span class="c"># machine-readable JSON</span>
+gen.<span class="fn">save_json</span>(report, <span class="st">"report.json"</span>)
+
+<span class="c"># HuggingFace dataset card section (Markdown)</span>
+<span class="fn">print</span>(gen.<span class="fn">to_markdown</span>(report))</pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>dialect map visualizer</strong>
+      Open <code>scripts/dialect_map_visualizer.html</code> in any browser. Drag and drop your JSONL file — no server needed. The Arab world lights up showing exactly where your data comes from. A bias alert fires if one dialect exceeds 65%.
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- 09 CLI -->
+  <section class="section" id="cli">
+    <div class="section-num">09</div>
+    <h2>CLI reference</h2>
+    <p>Every feature is available from the command line. The <code>qalam</code> command is installed automatically with the package.</p>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>terminal — clean</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="c"># basic clean</span>
+qalam clean data.jsonl --output clean.jsonl
+
+<span class="c"># keep MSA only, generate HTML report</span>
+qalam clean data.jsonl \
+  --dialect msa \
+  --output msa.jsonl \
+  --report-html report.html
+
+<span class="c"># SFT format with Llama-3 template, strict quality</span>
+qalam clean data.jsonl \
+  --format sft \
+  --template llama3 \
+  --quality-threshold 0.65 \
+  --output train.jsonl
+
+<span class="c"># keep diacritics (classical text)</span>
+qalam clean quran.jsonl --diacritics keep --output quran_clean.jsonl</pre>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span>terminal — report & dedup</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre><span class="c"># generate report card</span>
+qalam report data.jsonl --out report.html --json report.json
+
+<span class="c"># print markdown (for HuggingFace dataset cards)</span>
+qalam report data.jsonl --markdown
+
+<span class="c"># dedup only</span>
+qalam dedup data.jsonl --threshold 0.8 --output deduped.jsonl
+
+<span class="c"># exact dedup only (faster, no MinHash)</span>
+qalam dedup data.jsonl --exact-only --output deduped.jsonl
+
+<span class="c"># show all options and dialect codes</span>
+qalam info</pre>
+    </div>
+
+    <table>
+      <tr><th>Command</th><th>What it does</th></tr>
+      <tr><td><code>qalam clean</code></td><td>Full pipeline: normalize → dialect filter → quality → dedup → format</td></tr>
+      <tr><td><code>qalam report</code></td><td>Generate dataset report card (HTML / JSON / Markdown)</td></tr>
+      <tr><td><code>qalam dedup</code></td><td>Deduplicate only, with configurable threshold</td></tr>
+      <tr><td><code>qalam info</code></td><td>List modules, dialect codes, and available chat templates</td></tr>
+    </table>
+  </section>
+
+</div>
+
+<script>
+// scroll progress
+window.addEventListener('scroll', () => {
+  const doc = document.documentElement;
+  const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+});
+
+// intersection observer for section animations
+const sections = document.querySelectorAll('.section');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.07 });
+sections.forEach(s => obs.observe(s));
+
+// nav pill highlight on scroll
+const navPills = document.querySelectorAll('.nav-pill');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.id;
+  });
+  navPills.forEach(p => {
+    p.classList.toggle('active', p.getAttribute('href') === '#' + current);
+  });
+}, { passive: true });
+
+// copy button
+function copyCode(btn) {
+  const pre = btn.closest('.code-wrap').querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// smooth scroll for nav
+document.querySelectorAll('.nav-pill, .module-card').forEach(el => {
+  el.addEventListener('click', e => {
+    const href = el.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      e.preventDefault();
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# Preset: Supervised Fine-Tuning (SFT)
+# Use for: instruction tuning, chat fine-tuning
+# Priority: high precision, output must be clean and properly formatted
+
+normalizer:
+  normalize_alef: true
+  normalize_hamza: false
+  remove_tatweel: true
+  diacritics: strip
+  normalize_numerals: true
+  normalize_punctuation: true
+  remove_presentation_forms: true
+  remove_html: true
+  remove_urls: false           # URLs may be relevant in instruction context
+
+dialect_filter: null           # Keep all dialects — users may need mixed-dialect SFT
+dialect_min_confidence: 0.5
+
+quality:
+  min_arabic_ratio: 0.4       # Some SFT may have code/URLs (lower threshold)
+  min_length: 20              # Instructions can be short
+  max_length: 32000
+  max_repetition_ratio: 0.2
+  max_noise_ratio: 0.15
+  min_quality_score: 0.55     # Higher bar for fine-tuning data
+  check_toxicity: true
+  check_boilerplate: true
+
+dedup:
+  exact_dedup: true
+  near_dedup: true
+  near_dedup_threshold: 0.9   # Stricter for fine-tuning — avoid near-identical examples
+  num_perm: 128
+  shingle_size: 5
+  normalize_before_hash: true
+
+run_dedup: true
+output_format: sft
+chat_template: chatml
+generate_report: true
+verbose: true

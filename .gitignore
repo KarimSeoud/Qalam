@@ -1,0 +1,52 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+.env
+.venv
+env/
+venv/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+*.jsonl
+!examples/*.jsonl
+*.log
+
+.DS_Store
+Thumbs.db
+
+# Generated reports
+report.html
+report.json
+clean_*.jsonl
+
+# Licensed benchmark data — DO NOT COMMIT.
+# MADAR is distributed under NYU Abu Dhabi's research-use license and may
+# not be redistributed. Users download it themselves (see BENCHMARKS.md).
+MADAR-SHARED-TASK-final-release-25Jul2019/
+benchmarks/madar6_test.tsv
+benchmarks/*.tsv
+
+# Announcement video (Remotion project — not part of the library)
+announcement-video/
+node_modules/
+*.mp4
+
+# Claude Code session data
+.claude/
+
+# Stray brace-expansion artifact directory
+{arabic_dq,configs,tests,examples,scripts,docs}/
